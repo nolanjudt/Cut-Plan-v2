@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>Master Cut Plan - Interactive Logger</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cut Plan">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; }
+        
+        body {
+            margin: 0;
+            padding: 12px;
+            background: #0b0f19;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 12px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #ef4444;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            background: #1e293b;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #334155;
+        }
+
+        .tab-btn.active {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .section-intro {
+            background: #1e293b;
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            background: #334155;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .workout-day {
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+            background: #1e293b;
+        }
+
+        .workout-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #f1f5f9;
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 8px;
+        }
+
+        .exercise-block {
+            background: #0f172a;
+            border-left: 4px solid #334155;
+            padding: 14px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+        }
+
+        .exercise-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+        }
+
+        .rep-target {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .pyramid-section, .set-section {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .pyramid-line {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 6px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .pyramid-calc {
+            background: #0f172a;
+            padding: 4px 8px;
+            border-radius: 3px;
+            color: #34d399;
+            font-weight: 500;
+            min-width: 60px;
+        }
+
+        .set-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .input-label {
+            color: #cbd5e1;
+            min-width: 90px;
+        }
+
+        input[type="number"] {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            padding: 6px 8px;
+            border-radius: 3px;
+            width: 70px;
+            font-size: 13px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ef4444;
+            background: #1e293b;
+        }
+
+        .drop-calc {
+            background: #1e3a1f;
+            border: 1px solid #34d399;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #a6f3d0;
+            margin-bottom: 8px;
+        }
+
+        .assisted-pullup-calc {
+            background: #1e3a2f;
+            border: 1px solid #6366f1;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #a5d8ff;
+            margin-bottom: 8px;
+        }
+
+        .progressive-overload {
+            background: #3a2a1f;
+            border-left: 4px solid #f59e0b;
+            padding: 8px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #fcd34d;
+            margin-top: 8px;
+        }
+
+        .rep-range-hit {
+            background: #2a3a1f;
+            border-left: 4px solid #34d399;
+            padding: 8px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #a6f3d0;
+            margin-top: 8px;
+        }
+
+        .save-btn {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .save-btn:hover {
+            background: #dc2626;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .meal-row {
+            background: #0f172a;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .meal-meta {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .meal-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-top: 4px;
+        }
+
+        .meal-ingredients {
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        .macro-pill-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .macro-pill {
+            background: #334155;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .macro-pill span {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .summary-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        .summary-item {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .summary-item.highlight {
+            border: 2px solid #ef4444;
+        }
+
+        .lbl {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .val {
+            font-size: 20px;
+            color: #f1f5f9;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .set-input-group {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏋️ Master Cut Plan — Interactive Logger</h1>
+        <p class="subtitle">Cutting Phase | Drop Sets | Pyramid Warmups | Progressive Overload Tracking</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchMainTab('workouts', this)">🏋️ Workouts</button>
+        <button class="tab-btn" onclick="switchMainTab('nutrition', this)">📊 Nutrition</button>
+        <button class="tab-btn" onclick="switchMainTab('shopping', this)">🛒 Shopping</button>
+        <button class="tab-btn" onclick="switchMainTab('prep', this)">🥘 Prep Guide</button>
+    </div>
+
+    <!-- WORKOUTS PANEL -->
+    <div id="workouts" class="panel active">
+        <div class="section-intro">
+            <strong>💪 Log Your Workouts:</strong> Enter your top set weight, and pyramid/drop calculations populate automatically. Hit "Save Session" to log. Progressive overload tracking highlights when you achieve rep range ceilings.
+        </div>
+
+        <div class="tabs" style="margin-bottom: 16px;">
+            <button class="tab-btn active" onclick="switchWorkoutDay('mon', this)">Mon</button>
+            <button class="tab-btn" onclick="switchWorkoutDay('tue', this)">Tue</button>
+            <button class="tab-btn" onclick="switchWorkoutDay('thu', this)">Thu</button>
+            <button class="tab-btn" onclick="switchWorkoutDay('fri', this)">Fri</button>
+            <button class="tab-btn" onclick="switchWorkoutDay('sun', this)">Sun</button>
+        </div>
+
+        <!-- MONDAY -->
+        <div id="mon" class="workout-day active">
+            <div class="workout-title">Monday — Upper Body (~50 min)</div>
+            <div id="mon-exercises"></div>
+        </div>
+
+        <!-- TUESDAY -->
+        <div id="tue" class="workout-day">
+            <div class="workout-title">Tuesday — Lower Heavy (~40 min)</div>
+            <div id="tue-exercises"></div>
+        </div>
+
+        <!-- THURSDAY -->
+        <div id="thu" class="workout-day">
+            <div class="workout-title">Thursday — Lower Machine (~60 min)</div>
+            <div id="thu-exercises"></div>
+        </div>
+
+        <!-- FRIDAY -->
+        <div id="fri" class="workout-day">
+            <div class="workout-title">Friday — Push (~50 min)</div>
+            <div id="fri-exercises"></div>
+        </div>
+
+        <!-- SUNDAY -->
+        <div id="sun" class="workout-day">
+            <div class="workout-title">Sunday — Pull (~65 min)</div>
+            <div id="sun-exercises"></div>
+        </div>
+    </div>
+
+    <!-- NUTRITION PANEL -->
+    <div id="nutrition" class="panel">
+        <div class="section-intro">
+            <strong>🔥 Meal Structure Optimized for 5 Training Days:</strong> Training days: Mon, Tue, Thu, Fri, Sun (1,697 cal). Rest days: Wed, Sat (1,302 cal). Same nutrition plan maintained.
+        </div>
+
+        <div class="grid-layout">
+            <div class="card">
+                <div class="card-title">
+                    <span>Training Days</span>
+                    <span class="badge">5 Days / Wk</span>
+                </div>
+                
+                <div class="meal-row">
+                    <div class="meal-meta">05:30 AM — Meal 1</div>
+                    <div class="meal-name">GI Prime & Hydration</div>
+                    <div class="meal-ingredients">1 tbsp Psyllium Husk Powder in 12–16 oz cold water.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>0g</span></div><div class="macro-pill">C: <span>4g</span></div><div class="macro-pill">F: <span>0g</span></div><div class="macro-pill">~<span>15 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">06:00 AM — Meal 2</div>
+                    <div class="meal-name">Creamy Almond Milk Oats</div>
+                    <div class="meal-ingredients">40g Rolled Oats, 1 Scoop Your Protein Blend, 1 Cup Almondmilk, 1 Medium Banana.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>31.9g</span></div><div class="macro-pill">C: <span>54.6g</span></div><div class="macro-pill">F: <span>4.2g</span></div><div class="macro-pill">~<span>423 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">10:00 AM — Meal 3</div>
+                    <div class="meal-name">Anti-Catabolic Isolate Bridge</div>
+                    <div class="meal-ingredients">1 Scoop Protein Powder in water.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>25g</span></div><div class="macro-pill">C: <span>0g</span></div><div class="macro-pill">F: <span>0g</span></div><div class="macro-pill">~<span>100 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">12:00 PM — Meal 4</div>
+                    <div class="meal-name">Pre-Workout Chicken & Rice</div>
+                    <div class="meal-ingredients">151g Cooked Chicken, 115g Cooked Rice, 4.5 oz Broccoli, 0.75 tsp Olive Oil.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>53.3g</span></div><div class="macro-pill">C: <span>38.2g</span></div><div class="macro-pill">F: <span>8.9g</span></div><div class="macro-pill">~<span>446 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">02:30 PM — Meal 5</div>
+                    <div class="meal-name">Post-Workout Shake</div>
+                    <div class="meal-ingredients">1 Scoop Protein Powder, 1 Medium Apple.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>24.5g</span></div><div class="macro-pill">C: <span>29g</span></div><div class="macro-pill">F: <span>3g</span></div><div class="macro-pill">~<span>241 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">06:30 PM — Meal 6</div>
+                    <div class="meal-name">Beef & Potato Dinner</div>
+                    <div class="meal-ingredients">140g Cooked Beef, 135g Cooked Potatoes, 4.0 oz String Beans, 0.75 tsp Olive Oil. Take 2 Fish Oil Softgels.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>41.1g</span></div><div class="macro-pill">C: <span>30g</span></div><div class="macro-pill">F: <span>19.5g</span></div><div class="macro-pill">~<span>472 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-item"><div class="lbl">Calories</div><div class="val">1,697</div></div>
+                    <div class="summary-item highlight"><div class="lbl">Protein</div><div class="val">175.8g</div></div>
+                    <div class="summary-item"><div class="lbl">Carbs</div><div class="val">155.8g</div></div>
+                    <div class="summary-item"><div class="lbl">Fat</div><div class="val">35.6g</div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Rest Days</span>
+                    <span class="badge">2 Days / Wk</span>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">07:00 AM — Meal 1</div>
+                    <div class="meal-name">Egg & Spinach Skillet</div>
+                    <div class="meal-ingredients">4 large eggs, 150g spinach, 100g mushrooms, 1 tsp olive oil.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>26g</span></div><div class="macro-pill">C: <span>6g</span></div><div class="macro-pill">F: <span>25g</span></div><div class="macro-pill">~<span>353 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">11:30 AM — Meal 2</div>
+                    <div class="meal-name">Tuna Salad</div>
+                    <div class="meal-ingredients">160g canned tuna, 200g mixed greens, cucumber, 2 Tbsp light dressing.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>44g</span></div><div class="macro-pill">C: <span>6g</span></div><div class="macro-pill">F: <span>5.5g</span></div><div class="macro-pill">~<span>275 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">02:30 PM — Meal 3</div>
+                    <div class="meal-name">Chicken & Avocado Bowl</div>
+                    <div class="meal-ingredients">140g cooked chicken, 200g air-fried broccoli, 1/2 avocado.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>46g</span></div><div class="macro-pill">C: <span>15g</span></div><div class="macro-pill">F: <span>12g</span></div><div class="macro-pill">~<span>352 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="meal-row">
+                    <div class="meal-meta">06:00 PM — Meal 4</div>
+                    <div class="meal-name">Chicken & Asparagus Dinner</div>
+                    <div class="meal-ingredients">140g cooked chicken, 200g roasted asparagus, 1.5 tsp olive oil. Take 2 Fish Oil Softgels.</div>
+                    <div class="macro-pill-box">
+                        <div class="macro-pill">P: <span>45g</span></div><div class="macro-pill">C: <span>5g</span></div><div class="macro-pill">F: <span>10g</span></div><div class="macro-pill">~<span>322 cal</span></div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-item"><div class="lbl">Calories</div><div class="val">1,302</div></div>
+                    <div class="summary-item highlight"><div class="lbl">Protein</div><div class="val">161g</div></div>
+                    <div class="summary-item"><div class="lbl">Carbs</div><div class="val">32g</div></div>
+                    <div class="summary-item"><div class="lbl">Fat</div><div class="val">52.5g</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOPPING PANEL -->
+    <div id="shopping" class="panel">
+        <div class="section-intro">
+            <strong>🛒 Shopping Schedule (2× Weekly):</strong> Monday trip covers Tue–Fri training. Friday trip covers Sat–Mon training. Rest days (Wed, Sat) use fresh ingredients.
+        </div>
+
+        <div class="grid-layout">
+            <div class="card">
+                <div class="card-title">
+                    <span>Monday Shopping Trip</span>
+                    <span class="badge">Covers Tue–Fri (4 days)</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 14px; line-height: 1.8;">
+                    <p><strong style="color: #f1f5f9;">🥩 Proteins:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Chicken breast ~2.5 lbs raw</li>
+                        <li>Ground beef 90% lean 1.5 lbs</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥔 Carbs & Starches:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Yellow potatoes ~1.2 lbs (weigh 170g raw per serving)</li>
+                        <li>Rolled oats (1 container, ~40g per morning)</li>
+                        <li>Jasmine rice (dry, ~40g per training day)</li>
+                        <li>4 bananas</li>
+                        <li>4 apples</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥦 Fresh Vegetables:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>3 bunches fresh broccoli</li>
+                        <li>1 bag fresh spinach (150g)</li>
+                        <li>Mushrooms (100g)</li>
+                        <li>Spring mix (200g)</li>
+                        <li>String beans 4.0 oz</li>
+                        <li>Cucumber</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥫 Pantry & Canned:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Canned tuna 1 can (160g, for Wed rest day)</li>
+                        <li>Almond Breeze Unsweetened (1 carton 240mL)</li>
+                        <li>Olive oil (~3–4 oz bottle)</li>
+                        <li>Light vinaigrette dressing (verify macros on bottle)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Friday Shopping Trip</span>
+                    <span class="badge">Covers Sat–Mon (3 days)</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 14px; line-height: 1.8;">
+                    <p><strong style="color: #f1f5f9;">🥩 Proteins:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Chicken breast ~2.0 lbs raw</li>
+                        <li>Ground beef 90% lean 1.0 lb</li>
+                        <li>4 large eggs (for Wed/Sat rest days)</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥔 Carbs & Starches:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Yellow potatoes ~0.8 lbs</li>
+                        <li>Jasmine rice (dry, ~40g per training day)</li>
+                        <li>3 bananas</li>
+                        <li>3 apples</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥦 Fresh Vegetables:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>2 bunches fresh broccoli</li>
+                        <li>1 bunch fresh asparagus (⚠️ DO NOT cook Friday — store raw, roast Sun AM only)</li>
+                        <li>1 bag fresh spinach (150g)</li>
+                        <li>Mushrooms (100g)</li>
+                        <li>Spring mix (200g)</li>
+                        <li>Cucumber</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥫 Pantry & Extras:</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Canned tuna 1 can (160g, for Sat rest day if needed)</li>
+                        <li>Olive oil (~3–4 oz bottle)</li>
+                        <li>1 avocado (for rest day meals)</li>
+                    </ul>
+
+                    <p><strong style="color: #fcd34d;">📦 Monthly Pantry (Buy Once):</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Psyllium Husk Powder (1 container)</li>
+                        <li>Protein Powder (your blend, 2–3 containers)</li>
+                        <li>Fish Oil Softgels (Nordic Naturals / NOW Foods, 120–180 count)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREP PANEL -->
+    <div id="prep" class="panel">
+        <div class="section-intro">
+            <strong>🥘 Meal Prep Schedule (2× Weekly):</strong> Monday prep covers Tue–Fri training. Friday prep covers Sat–Mon training. Rest days use fresh, same-day cooking only.
+        </div>
+
+        <div class="grid-layout">
+            <div class="card">
+                <div class="card-title">
+                    <span>Monday Meal Prep (~45 min)</span>
+                    <span class="badge">Covers Tue–Fri Training</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 14px; line-height: 1.8;">
+                    <p><strong style="color: #f1f5f9;">1. Bake Chicken (22–25 min @ 375°F)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>2.5 lbs chicken breast on baking sheet</li>
+                        <li>Season with salt, pepper, optional garlic powder</li>
+                        <li>→ Portion into 151g cooked blocks (use kitchen scale)</li>
+                        <li>→ Store in separate containers for Tue/Thu/Fri lunch meals</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">2. Brown Ground Beef</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>1.5 lbs 90% lean ground beef in large skillet over medium-high heat</li>
+                        <li>Break apart with wooden spoon, cook ~8–10 min until no pink remains</li>
+                        <li>Drain thoroughly in fine mesh strainer to remove fat</li>
+                        <li>→ Portion into 140g cooked blocks</li>
+                        <li>→ Store for Tue/Thu/Fri dinner meals</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">3. Cook Jasmine Rice</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>120g dry jasmine rice (1 cup uncooked) in 2 cups water</li>
+                        <li>Bring to boil, reduce heat to low, cover, simmer 15 min</li>
+                        <li>Let rest 5 min, fluff with fork</li>
+                        <li>→ Yields ~360g cooked rice (Tue/Thu/Fri = 115g cooked each)</li>
+                        <li>→ Divide into 3 lunch containers</li>
+                    </ul>
+
+                    <p style="background: #1e3a1f; border-left: 4px solid #34d399; padding: 10px; border-radius: 3px; margin-top: 12px;">
+                        <strong style="color: #a6f3d0;">⚠️ DO NOT batch vegetables.</strong> Store broccoli, string beans raw in crisper drawer. Cook fresh daily 5–10 min before eating (air-fry broccoli 380°F 6–8 min, boil string beans 4 min).
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Friday Meal Prep (~45 min)</span>
+                    <span class="badge">Covers Sat–Mon Training</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 14px; line-height: 1.8;">
+                    <p><strong style="color: #f1f5f9;">1. Bake Chicken (20–22 min @ 375°F)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>2.0 lbs chicken breast on baking sheet</li>
+                        <li>Season with salt, pepper, optional garlic powder</li>
+                        <li>→ Portion into 151g cooked blocks</li>
+                        <li>→ Store for Sat/Mon lunch meals</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">2. Brown Ground Beef</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>1.0 lb 90% lean ground beef in skillet</li>
+                        <li>Cook ~6–8 min, break apart, drain thoroughly</li>
+                        <li>→ Portion into 140g cooked blocks</li>
+                        <li>→ Store for Sat/Mon dinner meals</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">3. Cook Jasmine Rice</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>80g dry jasmine rice (⅔ cup) in 1.3 cups water</li>
+                        <li>Same cooking method as Monday (boil, simmer 15 min, rest 5 min)</li>
+                        <li>→ Divide into 2 lunch containers (Sat/Mon)</li>
+                    </ul>
+
+                    <p style="background: #1e3a2f; border-left: 4px solid #6366f1; padding: 10px; border-radius: 3px; margin-top: 12px;">
+                        <strong style="color: #a5d8ff;">⚠️ Asparagus: Store raw Friday, air-fry fresh Sunday morning ONLY</strong> (prevents sogginess). Broccoli and other vegetables stored raw in crisper until use.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="grid-column: 1/-1;">
+                <div class="card-title">
+                    <span>Daily Fresh Cooking (Each Training Day ~10–15 min)</span>
+                    <span class="badge">Cook Before Eating</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 14px; line-height: 1.8;">
+                    <p><strong style="color: #f1f5f9;">🥔 Yellow Potatoes (Pre-Training Meal 4 @ 12 PM)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Weigh 170g raw yellow potatoes (put on scale, add water as needed)</li>
+                        <li>Cut into 1–1.5 inch chunks (skins on for faster cook)</li>
+                        <li>Air-fry @ 400°F for 18 minutes, shake basket halfway</li>
+                        <li>→ Yields 135g cooked (measured after cooking)</li>
+                        <li>Alternative: Can prep night-before and reheat morning-of in fridge (microwave 2–3 min)</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🥦 Broccoli (Training Days)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Weigh 4.5 oz fresh broccoli (chop into florets)</li>
+                        <li>Air-fry @ 380°F for 6–8 minutes until bright green and tender-crisp</li>
+                        <li>Do immediately before eating (takes ~8 min total including air-fry)</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🫘 String Beans (Tue Training Dinner)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Weigh 4.0 oz fresh string beans (trim ends)</li>
+                        <li>Boil in salted water for exactly 4 minutes</li>
+                        <li>Drain, season with salt/pepper, optional 1 tsp butter</li>
+                    </ul>
+
+                    <p><strong style="color: #f1f5f9;">🍃 Asparagus (Sun Rest Day Only — Fresh Same-Day)</strong></p>
+                    <ul style="margin: 4px 0 12px 20px; padding: 0;">
+                        <li>Weigh 200g fresh asparagus (trim woody ends)</li>
+                        <li>Air-fry @ 390°F for 7 minutes</li>
+                        <li>Do Sunday morning ONLY — never batch (becomes soggy)</li>
+                    </ul>
+
+                    <p style="background: #1e3a1f; border-left: 4px solid #34d399; padding: 10px; border-radius: 3px; margin-top: 12px;">
+                        <strong style="color: #a6f3d0;">Rest Day Meals (Wed, Sat):</strong> Never batch-cook. Scramble eggs fresh (10 min), make tuna salad fresh (5 min), roast broccoli fresh (8 min). Total: 15 min per rest day, all fresh.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Master Cut Plan — Interactive Logger | 5 Training Days (Mon, Tue, Thu, Fri, Sun) | 2 Rest Days (Wed, Sat)</p>
+    </div>
+
+</div>
+
+<script>
+    const BW = 145; // Your bodyweight in lbs
+
+    // Workout data structure
+    const workoutData = {
+        mon: [
+            { name: "Machine Incline Press", repTarget: "6-10", hasPyramid: true, dropPercent: 20 },
+            { name: "Lat Pulldown", repTarget: "8-10", hasPyramid: true, dropPercent: 20 },
+            { name: "Pec Dec", repTarget: "10-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Cable Shoulder Press", repTarget: "8-10", hasPyramid: false, dropPercent: 20 },
+            { name: "Cable Lateral Raise", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Dumbbell Shrugs", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Rope Pushdowns", repTarget: "10-12", hasPyramid: false, dropPercent: 20 },
+            { name: "Myotatic Crunches", repTarget: "10-12", hasPyramid: false, dropPercent: 0 },
+        ],
+        tue: [
+            { name: "Leg Press", repTarget: "6-8", hasPyramid: true, dropPercent: 20 },
+            { name: "Seated Leg Curl", repTarget: "10-15", hasPyramid: false, dropPercent: 20 },
+            { name: "Leg Extension", repTarget: "8-10", hasPyramid: false, dropPercent: 20 },
+            { name: "Cable Pull-Through", repTarget: "12-15", hasPyramid: false, dropPercent: 0 },
+            { name: "Calf Raises", repTarget: "10-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Cable Woodchoppers", repTarget: "10-15", hasPyramid: false, dropPercent: 0 },
+            { name: "Myotatic Crunches", repTarget: "10-12", hasPyramid: false, dropPercent: 0 },
+        ],
+        thu: [
+            { name: "Hip Abductor Machine", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Hip Adductor Machine", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Leg Press", repTarget: "15-20", hasPyramid: false, dropPercent: 10 },
+            { name: "Seated Leg Curl", repTarget: "15-20", hasPyramid: false, dropPercent: 0 },
+            { name: "Leg Extension", repTarget: "15-20", hasPyramid: false, dropPercent: 0 },
+            { name: "Standing Calf Raises", repTarget: "15-20", hasPyramid: false, dropPercent: 10 },
+            { name: "Ab Wheel", repTarget: "8-12", hasPyramid: false, dropPercent: 0 },
+            { name: "Myotatic Crunches", repTarget: "10-12", hasPyramid: false, dropPercent: 0 },
+        ],
+        fri: [
+            { name: "Machine Decline Press", repTarget: "6-10", hasPyramid: true, dropPercent: 20 },
+            { name: "Incline DB Press", repTarget: "6-10", hasPyramid: true, dropPercent: 20 },
+            { name: "Pec Dec", repTarget: "10-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Cable Shoulder Press", repTarget: "8-10", hasPyramid: false, dropPercent: 20 },
+            { name: "Cable Lateral Raise", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Rope Pushdowns", repTarget: "10-12", hasPyramid: false, dropPercent: 20 },
+            { name: "Overhead Tricep Extensions", repTarget: "10-12", hasPyramid: false, dropPercent: 20 },
+        ],
+        sun: [
+            { name: "Assisted Pull-Ups", repTarget: "6-10", isAssistedPullup: true },
+            { name: "Chest-Supported Row", repTarget: "8-10", hasPyramid: true, dropPercent: 20 },
+            { name: "Single-Arm Cable Pulldown", repTarget: "10-12", hasPyramid: false, dropPercent: 20 },
+            { name: "Straight-Arm Pulldown", repTarget: "12-15", hasPyramid: false, dropPercent: 0 },
+            { name: "Rear Delt Cable Fly", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Cable EZ Curl", repTarget: "10-12", hasPyramid: false, dropPercent: 20 },
+            { name: "Rope Hammer Curl", repTarget: "12-15", hasPyramid: false, dropPercent: 15 },
+            { name: "Wrist Curls", repTarget: "12-20", hasPyramid: false, dropPercent: 10 },
+            { name: "Wrist Extensions", repTarget: "12-20", hasPyramid: false, dropPercent: 10 },
+            { name: "Hanging Knee Raises", repTarget: "10-15", hasPyramid: false, dropPercent: 0 },
+        ],
+    };
+
+    // Initialize UI
+    function initWorkouts() {
+        Object.keys(workoutData).forEach(day => {
+            const container = document.getElementById(`${day}-exercises`);
+            workoutData[day].forEach(exercise => {
+                container.appendChild(createExerciseBlock(day, exercise));
+            });
+        });
+    }
+
+    function createExerciseBlock(day, exercise) {
+        const block = document.createElement('div');
+        block.className = 'exercise-block';
+        block.id = `${day}-${exercise.name.replace(/\s+/g, '-').toLowerCase()}`;
+
+        let html = `<div class="exercise-name">${exercise.name}</div>`;
+        html += `<div class="rep-target">Target Reps: ${exercise.repTarget}</div>`;
+
+        if (exercise.isAssistedPullup) {
+            html += createAssistedPullupUI(day, exercise);
+        } else {
+            if (exercise.hasPyramid) {
+                html += createPyramidUI();
+            }
+            html += createSetUI(day, exercise, exercise.dropPercent);
+        }
+
+        html += `<button class="save-btn" onclick="saveSession('${day}', '${exercise.name}')">Save Session</button>`;
+        
+        block.innerHTML = html;
+        return block;
+    }
+
+    function createPyramidUI() {
+        return `
+            <div class="pyramid-section">
+                <div style="font-weight: 600; margin-bottom: 8px;">Pyramid Warmup (Enter Top Set Weight):</div>
+                <input type="number" id="warmup-top-weight" placeholder="Top set weight" style="margin-bottom: 8px;">
+                <div id="pyramid-calcs"></div>
+            </div>
+        `;
+    }
+
+    function createSetUI(day, exercise, dropPercent) {
+        return `
+            <div class="set-section">
+                <div class="set-input-group">
+                    <span class="input-label">Set 1 (Top):</span>
+                    <input type="number" class="set1-weight" placeholder="Weight" data-day="${day}" data-exercise="${exercise.name}">
+                    <span>lbs ×</span>
+                    <input type="number" class="set1-reps" placeholder="Reps" min="1" max="50">
+                </div>
+                ${dropPercent > 0 ? `
+                <div class="drop-calc" id="drop-calc-${day}-${exercise.name.replace(/\s+/g, '-').toLowerCase()}">
+                    Enter Set 1 weight to calculate drop set range
+                </div>
+                <div class="set-input-group">
+                    <span class="input-label">Set 2 (Drop):</span>
+                    <input type="number" class="set2-weight" placeholder="Weight" data-drop-percent="${dropPercent}">
+                    <span>lbs ×</span>
+                    <input type="number" class="set2-reps" placeholder="Reps" min="1" max="50">
+                </div>
+                ` : ''}
+                <div id="progressive-${day}-${exercise.name.replace(/\s+/g, '-').toLowerCase()}"></div>
+            </div>
+        `;
+    }
+
+    function createAssistedPullupUI(day, exercise) {
+        return `
+            <div class="set-section">
+                <div style="font-weight: 600; margin-bottom: 8px;">Assisted Pull-Ups (1 Top + 3 Drops)</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Assistance increases as reps increase (weight on assistance decreases effort)</div>
+                
+                <div class="set-input-group">
+                    <span class="input-label">Set 1 (Top):</span>
+                    <input type="number" class="apu-set1-assist" placeholder="60" data-day="${day}">
+                    <span>lbs assist ×</span>
+                    <input type="number" class="apu-set1-reps" placeholder="Reps" min="1" max="20">
+                </div>
+                <div class="assisted-pullup-calc" id="apu-set1-calc"></div>
+
+                <div class="set-input-group">
+                    <span class="input-label">Set 2 (Drop):</span>
+                    <input type="number" class="apu-set2-assist" placeholder="70" data-day="${day}">
+                    <span>lbs assist ×</span>
+                    <input type="number" class="apu-set2-reps" placeholder="Reps" min="1" max="20">
+                </div>
+                <div class="assisted-pullup-calc" id="apu-set2-calc"></div>
+
+                <div class="set-input-group">
+                    <span class="input-label">Set 3 (Drop):</span>
+                    <input type="number" class="apu-set3-assist" placeholder="90" data-day="${day}">
+                    <span>lbs assist ×</span>
+                    <input type="number" class="apu-set3-reps" placeholder="Reps" min="1" max="20">
+                </div>
+                <div class="assisted-pullup-calc" id="apu-set3-calc"></div>
+
+                <div class="set-input-group">
+                    <span class="input-label">Set 4 (Drop):</span>
+                    <input type="number" class="apu-set4-assist" placeholder="110" data-day="${day}">
+                    <span>lbs assist ×</span>
+                    <input type="number" class="apu-set4-reps" placeholder="Reps" min="1" max="20">
+                </div>
+                <div class="assisted-pullup-calc" id="apu-set4-calc"></div>
+            </div>
+        `;
+    }
+
+    function switchMainTab(tabId, button) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+    }
+
+    function switchWorkoutDay(day, button) {
+        document.querySelectorAll('.workout-day').forEach(d => d.classList.remove('active'));
+        document.getElementById(day).classList.add('active');
+        
+        const tabs = document.querySelectorAll('#workouts .tabs .tab-btn');
+        tabs.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+    }
+
+    function saveSession(day, exerciseName) {
+        alert(`Session saved for ${exerciseName} on ${day.toUpperCase()}`);
+        // TODO: Implement localStorage save
+    }
+
+    // Real-time calculation listeners
+    document.addEventListener('input', function(e) {
+        // Pyramid warmup calculations
+        if (e.target.id === 'warmup-top-weight') {
+            updatePyramidCalcs(e.target);
+        }
+        // Drop set calculations
+        if (e.target.classList.contains('set1-weight')) {
+            updateDropsetCalc(e.target);
+        }
+        // Rep range hit detection
+        if (e.target.classList.contains('set1-reps')) {
+            updateRepRangeStatus(e.target);
+        }
+        // Assisted pull-ups
+        if (e.target.classList.contains('apu-set1-assist')) {
+            updateAssistedPullupCalc('set1');
+        }
+        if (e.target.classList.contains('apu-set2-assist')) {
+            updateAssistedPullupCalc('set2');
+        }
+        if (e.target.classList.contains('apu-set3-assist')) {
+            updateAssistedPullupCalc('set3');
+        }
+        if (e.target.classList.contains('apu-set4-assist')) {
+            updateAssistedPullupCalc('set4');
+        }
+    });
+
+    function updatePyramidCalcs(topWeightInput) {
+        const topWeight = parseFloat(topWeightInput.value) || 0;
+        const pyramidContainer = topWeightInput.parentElement.nextElementSibling;
+        
+        if (topWeight <= 0) {
+            pyramidContainer.innerHTML = '';
+            return;
+        }
+
+        const set1 = Math.round(topWeight * 0.40);
+        const set2 = Math.round(topWeight * 0.60);
+        const set3 = Math.round(topWeight * 0.80);
+        const set4 = Math.round(topWeight * 0.90);
+
+        pyramidContainer.innerHTML = `
+            <div class="pyramid-line">
+                <span style="min-width: 100px;">Set 1 (40%):</span>
+                <span class="pyramid-calc">${set1} lbs</span>
+                <span>× 10 reps</span>
+            </div>
+            <div class="pyramid-line">
+                <span style="min-width: 100px;">Set 2 (60%):</span>
+                <span class="pyramid-calc">${set2} lbs</span>
+                <span>× 6 reps</span>
+            </div>
+            <div class="pyramid-line">
+                <span style="min-width: 100px;">Set 3 (80%):</span>
+                <span class="pyramid-calc">${set3} lbs</span>
+                <span>× 3 reps</span>
+            </div>
+            <div class="pyramid-line">
+                <span style="min-width: 100px;">Set 4 (90%):</span>
+                <span class="pyramid-calc">${set4} lbs</span>
+                <span>× 1-2 reps</span>
+            </div>
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #334155; color: #f59e0b; font-size: 12px;">
+                Then your top set at <strong>${topWeight} lbs</strong>
+            </div>
+        `;
+    }
+
+    function updateDropsetCalc(weightInput) {
+        const topWeight = parseFloat(weightInput.value) || 0;
+        const day = weightInput.dataset.day;
+        const exerciseName = weightInput.dataset.exercise;
+        const calcId = `drop-calc-${day}-${exerciseName.replace(/\s+/g, '-').toLowerCase()}`;
+        const calcElement = document.getElementById(calcId);
+        
+        if (!calcElement || topWeight <= 0) {
+            if (calcElement) calcElement.innerHTML = 'Enter Set 1 weight to calculate drop set range';
+            return;
+        }
+
+        // Find the drop percent for this exercise
+        const exercise = workoutData[day].find(e => e.name === exerciseName);
+        const dropPercent = exercise.dropPercent;
+
+        if (dropPercent === 0) {
+            calcElement.style.display = 'none';
+            return;
+        }
+
+        const dropAmount = Math.round(topWeight * (dropPercent / 100));
+        const minDrop = Math.round(topWeight - dropAmount - 5);
+        const maxDrop = Math.round(topWeight - dropAmount + 5);
+
+        calcElement.innerHTML = `
+            <strong>Drop Set (${dropPercent}% reduction):</strong><br>
+            Weight range: <strong>${minDrop}–${maxDrop} lbs</strong> (±5 lbs machine increment)
+        `;
+    }
+
+    function updateRepRangeStatus(repsInput) {
+        const setRow = repsInput.closest('.set-input-group');
+        const repTarget = repsInput.closest('.exercise-block').querySelector('.rep-target').textContent;
+        const reps = parseInt(repsInput.value) || 0;
+        
+        // Parse rep range from "Target Reps: 6-10"
+        const match = repTarget.match(/(\d+)-(\d+)/);
+        if (!match) return;
+
+        const minReps = parseInt(match[1]);
+        const maxReps = parseInt(match[2]);
+
+        const statusDiv = setRow.nextElementSibling;
+        if (statusDiv && statusDiv.classList.contains('rep-range-hit')) {
+            statusDiv.remove();
+        }
+
+        if (reps === maxReps && reps > 0) {
+            const hitDiv = document.createElement('div');
+            hitDiv.className = 'rep-range-hit';
+            hitDiv.textContent = `✅ Rep Range Hit! You achieved the ceiling (${maxReps} reps)`;
+            setRow.after(hitDiv);
+        }
+    }
+
+    function updateAssistedPullupCalc(setKey) {
+        const assistInput = document.querySelector(`.apu-${setKey}-assist`);
+        const repsInput = document.querySelector(`.apu-${setKey}-reps`);
+        const calcDiv = document.getElementById(`apu-${setKey}-calc`);
+
+        if (!assistInput || !calcDiv) return;
+
+        const assistWeight = parseFloat(assistInput.value) || 0;
+        const reps = parseInt(repsInput.value) || 0;
+
+        if (assistWeight <= 0) {
+            calcDiv.innerHTML = 'Enter assistance weight';
+            return;
+        }
+
+        // Net load = Bodyweight - Assistance
+        const netLoad = BW - assistWeight;
+        const netPercent = ((netLoad / BW) * 100).toFixed(1);
+
+        calcDiv.innerHTML = `
+            <strong>Net Load:</strong> ${BW} lbs (BW) - ${assistWeight} lbs (assist) = <strong>${netLoad} lbs</strong> (${netPercent}% of bodyweight)
+            ${reps > 0 ? `<br><strong>Reps logged:</strong> ${reps}` : ''}
+        `;
+    }
+
+    function saveSession(day, exerciseName) {
+        const block = document.getElementById(`${day}-${exerciseName.replace(/\s+/g, '-').toLowerCase()}`);
+        
+        let sessionData = {
+            exercise: exerciseName,
+            day: day,
+            date: new Date().toISOString().split('T')[0],
+            sets: []
+        };
+
+        const isAssistedPullup = exerciseName.includes('Assisted Pull-Ups');
+
+        if (isAssistedPullup) {
+            // Collect assisted pull-up data
+            for (let i = 1; i <= 4; i++) {
+                const assistInput = block.querySelector(`.apu-set${i}-assist`);
+                const repsInput = block.querySelector(`.apu-set${i}-reps`);
+                if (assistInput.value && repsInput.value) {
+                    sessionData.sets.push({
+                        setNum: i,
+                        assistWeight: parseFloat(assistInput.value),
+                        netLoad: BW - parseFloat(assistInput.value),
+                        reps: parseInt(repsInput.value)
+                    });
+                }
+            }
+        } else {
+            // Collect regular set data
+            const set1Weight = block.querySelector('.set1-weight');
+            const set1Reps = block.querySelector('.set1-reps');
+            const set2Weight = block.querySelector('.set2-weight');
+            const set2Reps = block.querySelector('.set2-reps');
+
+            if (set1Weight && set1Weight.value && set1Reps && set1Reps.value) {
+                sessionData.sets.push({
+                    setNum: 1,
+                    weight: parseFloat(set1Weight.value),
+                    reps: parseInt(set1Reps.value)
+                });
+            }
+
+            if (set2Weight && set2Weight.value && set2Reps && set2Reps.value) {
+                sessionData.sets.push({
+                    setNum: 2,
+                    weight: parseFloat(set2Weight.value),
+                    reps: parseInt(set2Reps.value)
+                });
+            }
+        }
+
+        // Save to localStorage
+        const key = `workout_${day}_${exerciseName.replace(/\s+/g, '_')}`;
+        localStorage.setItem(key, JSON.stringify(sessionData));
+
+        alert(`✅ Saved: ${exerciseName} on ${day.toUpperCase()}\nSets: ${sessionData.sets.length}`);
+    }
+
+    // Load previous session data on page load
+    function loadPreviousSession(day, exerciseName) {
+        const key = `workout_${day}_${exerciseName.replace(/\s+/g, '_')}`;
+        const sessionStr = localStorage.getItem(key);
+        
+        if (!sessionStr) return null;
+
+        try {
+            return JSON.parse(sessionStr);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Populate progressive overload indicator
+    function populateProgressiveOverload(day, exerciseName) {
+        const block = document.getElementById(`${day}-${exerciseName.replace(/\s+/g, '-').toLowerCase()}`);
+        if (!block) return;
+
+        const previousSession = loadPreviousSession(day, exerciseName);
+        const progressiveDiv = block.querySelector('[id^="progressive-"]');
+        
+        if (!progressiveDiv) return;
+
+        if (!previousSession || previousSession.sets.length === 0) {
+            progressiveDiv.innerHTML = '<div style="font-size: 12px; color: #94a3b8;">No previous session logged</div>';
+            return;
+        }
+
+        const lastSet = previousSession.sets[0];
+        const lastDate = previousSession.date;
+        
+        let progressiveHTML = `
+            <div class="progressive-overload">
+                <strong>📊 Last Session (${lastDate}):</strong><br>
+        `;
+
+        if (previousSession.sets[0].assistWeight !== undefined) {
+            // Assisted pull-ups
+            progressiveHTML += `Set 1: ${lastSet.assistWeight} lbs assist (${lastSet.netLoad} lbs net) × ${lastSet.reps} reps`;
+        } else {
+            // Regular exercise
+            progressiveHTML += `Set 1: ${lastSet.weight} lbs × ${lastSet.reps} reps`;
+        }
+
+        progressiveHTML += '<br><span style="font-size: 11px;">Match or exceed this to progress.</span></div>';
+        
+        progressiveDiv.innerHTML = progressiveHTML;
+    }
+
+    // Initialize on page load
+    window.addEventListener('load', () => {
+        initWorkouts();
+        
+        // Load previous sessions for all exercises
+        Object.keys(workoutData).forEach(day => {
+            workoutData[day].forEach(exercise => {
+                populateProgressiveOverload(day, exercise.name);
+            });
+        });
+    });
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then((reg) => console.log('Service Worker registered'))
+                .catch((err) => console.log('Service Worker registration failed'));
+        });
+    }
+</script>
+
+</body>
+</html>
